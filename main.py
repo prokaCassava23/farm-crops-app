@@ -64,7 +64,7 @@ def fetch_crop_data():
 def background_updater():
     while True:
         fetch_crop_data()
-        time.sleep(5)
+        time.sleep(10)
 
 @app.get("/api/crops")
 def get_crops():
