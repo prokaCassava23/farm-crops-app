@@ -17,8 +17,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-EMAIL = os.getenv("SCRAPE_USERNAME")
-PASSWORD = os.getenv("SCRAPE_PASSWORD")
+EMAIL = os.getenv("email")
+PASSWORD = os.getenv("password")
 
 login_url = 'https://farmmanagergame.com/login-check.php'
 data_url = 'https://farmmanagergame.com/api/market.php'
