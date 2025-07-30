@@ -5,69 +5,199 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Farm Manager Crop Viewer</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input { padding: 8px; width: 100%; margin-bottom: 10px; }
-    .plant { border: 1px solid #ccc; padding: 10px; margin-bottom: 5px; cursor: pointer; }
-    .details { display: none; padding-top: 10px; font-size: 0.9em; color: #333; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f9f9f9;
+      color: #222;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .filters {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input, select {
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .plant {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .plant:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .short-info {
+      font-size: 0.95rem;
+      color: #333;
+      line-height: 1.4;
+    }
+
+    .expand {
+      display: none;
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    .rating {
+      font-weight: normal;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
   </style>
 </head>
 <body>
-  <h1>🌱 Farm Manager Crops</h1>
-  <input type="text" id="search" placeholder="Search plant name..." />
-  <div id="plant-list"></div>
+  <div class="container">
+    <h1>🌱 Farm Manager Crops</h1>
+
+    <div class="filters">
+      <input type="text" id="search" placeholder="Search plant name..." />
+      
+      <select id="sort">
+        <option value="">Sort by...</option>
+        <option value="rating">Highest Crop Value Rating</option>
+        <option value="maturing">Shortest Maturing Time</option>
+      </select>
+
+      <select id="seed-type">
+        <option value="">Filter by Seed Type...</option>
+      </select>
+    </div>
+
+    <div id="plant-list"></div>
+  </div>
 
   <script>
     const API_URL = '/api/crops';
     let cropData = [];
 
+    const secondsToTime = (sec) => {
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      return [
+        h ? `${h}h` : '',
+        m ? `${m}m` : '',
+        s && !h ? `${s}s` : ''
+      ].filter(Boolean).join(' ');
+    };
+
     async function fetchData() {
       try {
         const res = await fetch(API_URL);
         cropData = await res.json();
+        populateSeedTypes();
         renderList();
       } catch (err) {
         console.error("Failed to fetch crop data", err);
       }
     }
 
+    function populateSeedTypes() {
+      const seedTypeSelect = document.getElementById("seed-type");
+      const uniqueTypes = [...new Set(cropData.map(c => c.type))].sort();
+      seedTypeSelect.innerHTML = '<option value="">Filter by Seed Type...</option>';
+      uniqueTypes.forEach(type => {
+        const opt = document.createElement("option");
+        opt.value = type;
+        opt.textContent = type;
+        seedTypeSelect.appendChild(opt);
+      });
+    }
+
     function renderList() {
-      const filter = document.getElementById("search").value.toLowerCase();
+      const searchVal = document.getElementById("search").value.toLowerCase();
+      const sortVal = document.getElementById("sort").value;
+      const seedTypeVal = document.getElementById("seed-type").value;
+
       const container = document.getElementById("plant-list");
       container.innerHTML = "";
 
-      cropData
-        .filter(crop => crop.name.toLowerCase().includes(filter))
-        .forEach(crop => {
-          const div = document.createElement("div");
-          div.className = "plant";
-          div.innerHTML = `<strong>${crop.name}</strong>`;
+      let filtered = cropData
+        .filter(crop => crop.name.toLowerCase().includes(searchVal))
+        .filter(crop => !seedTypeVal || crop.type === seedTypeVal);
 
-          const details = document.createElement("div");
-          details.className = "details";
-          details.innerHTML = `
-            Seed Type: ${crop.type}<br/>
-            Crop Value Rating: ${crop.cropValueRating}%<br/>
-            Crop Value per 1K: $${crop.cropValuePer1k}<br/>
-            Seed Cost: $${crop.seedCost}<br/>
-            Kg per Ha: ${crop.kgPerHa}<br/>
-            Yield per Ha: ${crop.yieldPerHa}<br/>
-            Temp Max (°C): ${crop.tempMaxC}<br/>
-            Best pH: ${crop.bestPh}<br/>
-            Irrigation: ${crop.irrigation}<br/>
-            Maturing Time: ${crop.maturingTime} sec<br/>
-            Ha Traded: ${crop.haTraded}
-          `;
+      if (sortVal === "rating") {
+        filtered.sort((a, b) => b.cropValueRating - a.cropValueRating);
+      } else if (sortVal === "maturing") {
+        filtered.sort((a, b) => a.maturingTime - b.maturingTime);
+      }
 
-          div.appendChild(details);
-          div.onclick = () => {
-            details.style.display = details.style.display === "block" ? "none" : "block";
-          };
+      filtered.forEach(crop => {
+        const div = document.createElement("div");
+        div.className = "plant";
 
-          container.appendChild(div);
-        });
+        const rating = Number(crop.cropValueRating).toFixed(2);
+        let color = "gray";
+        if (rating >= 70) color = "green";
+        else if (rating >= 40) color = "orange";
+        else color = "red";
+
+        const shortInfo = document.createElement("div");
+        shortInfo.className = "short-info";
+        shortInfo.innerHTML = `
+          <strong>${crop.name}</strong> <span class="rating" style="color: ${color};">(${rating}%)</span><br/>
+          Seed Type: ${crop.type}<br/>
+          Crop Value Rating: ${rating}%<br/>
+          Crop Value per 1K: $${Number(crop.cropValuePer1k).toFixed(2)}<br/>
+          Seed Cost: $${Number(crop.seedCost).toFixed(2)}
+        `;
+
+        const expand = document.createElement("div");
+        expand.className = "expand";
+        expand.innerHTML = `
+          Kg per Ha: ${crop.kgPerHa}<br/>
+          Yield per Ha: ${crop.yieldPerHa}<br/>
+          Temp Max (°C): ${crop.tempMaxC}<br/>
+          Best pH: ${Number(crop.bestPh).toFixed(2)}<br/>
+          Irrigation: ${Number(crop.irrigation).toFixed(2)}<br/>
+          Maturing Time: ${secondsToTime(Number(crop.maturingTime))}<br/>
+          Ha Traded: ${Number(crop.haTraded).toFixed(2)}
+        `;
+
+        div.appendChild(shortInfo);
+        div.appendChild(expand);
+
+        div.onclick = () => {
+          expand.style.display = expand.style.display === "block" ? "none" : "block";
+        };
+
+        container.appendChild(div);
+      });
     }
 
     document.getElementById("search").addEventListener("input", renderList);
+    document.getElementById("sort").addEventListener("change", renderList);
+    document.getElementById("seed-type").addEventListener("change", renderList);
+
     fetchData();
     setInterval(fetchData, 5000);
   </script>
