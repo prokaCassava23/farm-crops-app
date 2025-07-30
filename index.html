@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Farm Manager Crop Viewer</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input { padding: 8px; width: 100%; margin-bottom: 10px; }
+    .plant { border: 1px solid #ccc; padding: 10px; margin-bottom: 5px; cursor: pointer; }
+    .details { display: none; padding-top: 10px; font-size: 0.9em; color: #333; }
+  </style>
+</head>
+<body>
+  <h1>🌱 Farm Manager Crops</h1>
+  <input type="text" id="search" placeholder="Search plant name..." />
+  <div id="plant-list"></div>
+
+  <script>
+    const API_URL = '/api/crops';
+    let cropData = [];
+
+    async function fetchData() {
+      try {
+        const res = await fetch(API_URL);
+        cropData = await res.json();
+        renderList();
+      } catch (err) {
+        console.error("Failed to fetch crop data", err);
+      }
+    }
+
+    function renderList() {
+      const filter = document.getElementById("search").value.toLowerCase();
+      const container = document.getElementById("plant-list");
+      container.innerHTML = "";
+
+      cropData
+        .filter(crop => crop.name.toLowerCase().includes(filter))
+        .forEach(crop => {
+          const div = document.createElement("div");
+          div.className = "plant";
+          div.innerHTML = `<strong>${crop.name}</strong>`;
+
+          const details = document.createElement("div");
+          details.className = "details";
+          details.innerHTML = `
+            Seed Type: ${crop.type}<br/>
+            Crop Value Rating: ${crop.cropValueRating}%<br/>
+            Crop Value per 1K: $${crop.cropValuePer1k}<br/>
+            Seed Cost: $${crop.seedCost}<br/>
+            Kg per Ha: ${crop.kgPerHa}<br/>
+            Yield per Ha: ${crop.yieldPerHa}<br/>
+            Temp Max (°C): ${crop.tempMaxC}<br/>
+            Best pH: ${crop.bestPh}<br/>
+            Irrigation: ${crop.irrigation}<br/>
+            Maturing Time: ${crop.maturingTime} sec<br/>
+            Ha Traded: ${crop.haTraded}
+          `;
+
+          div.appendChild(details);
+          div.onclick = () => {
+            details.style.display = details.style.display === "block" ? "none" : "block";
+          };
+
+          container.appendChild(div);
+        });
+    }
+
+    document.getElementById("search").addEventListener("input", renderList);
+    fetchData();
+    setInterval(fetchData, 5000);
+  </script>
+</body>
+</html>
