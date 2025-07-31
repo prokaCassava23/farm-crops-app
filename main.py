@@ -70,9 +70,9 @@ def background_updater():
 def get_crops():
     return cached_data
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def serve_frontend():
-    with open("index.html", "r") as f:
+    with open("index.html", "r", encoding="utf-8") as f: 
         return HTMLResponse(f.read())
 
 threading.Thread(target=background_updater, daemon=True).start()
