@@ -1,351 +1,399 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Farm Manager Crop Viewer</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: #f9f9f9;
-      color: #222;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Farm Manager Crop Viewer</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: #f9f9f9;
+        color: #222;
+      }
 
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
 
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1.5rem;
-    }
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+      }
 
-    .filters {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
+      .filters {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
 
-    input, select {
-      padding: 0.6rem 1rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #fff;
-    }
+      input,
+      select {
+        padding: 0.6rem 1rem;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #fff;
+      }
 
-    .plant {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      transition: box-shadow 0.2s ease;
-      cursor: pointer;
-    }
+      .plant {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: box-shadow 0.2s ease;
+        cursor: pointer;
+      }
 
-    .plant:hover {
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
+      .plant:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      }
 
-    .short-info {
-      font-size: 0.95rem;
-      color: #333;
-      line-height: 1.4;
-    }
+      .short-info {
+        font-size: 0.95rem;
+        color: #333;
+        line-height: 1.4;
+      }
 
-    .expand {
-      display: none;
-      margin-top: 0.75rem;
-      font-size: 0.95rem;
-      color: #555;
-      line-height: 1.4;
-    }
+      .expand {
+        display: none;
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.4;
+      }
 
-    .rating {
-      font-weight: normal;
-      font-size: 0.9rem;
-      margin-left: 0.5rem;
-    }
+      .rating {
+        font-weight: normal;
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+      }
 
-    .calc-btn {
-      margin-top: 0.5rem;
-      padding: 0.4rem 0.8rem;
-      font-size: 0.9rem;
-      border: none;
-      border-radius: 4px;
-      background-color: #28a745;
-      color: white;
-      cursor: pointer;
-    }
+      .calc-btn {
+        margin-top: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 4px;
+        background-color: #28a745;
+        color: white;
+        cursor: pointer;
+      }
 
-    .calc-btn:hover {
-      background-color: #218838;
-    }
+      .calc-btn:hover {
+        background-color: #218838;
+      }
 
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-    }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+      }
 
-    .modal {
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      width: 300px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      animation: popIn 0.2s ease-out;
-    }
+      .modal {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        width: 300px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: popIn 0.2s ease-out;
+      }
 
-    .modal h2 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-    }
+      .modal h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+      }
 
-    .modal input {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+      .modal input {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
 
-    .modal .result {
-      margin-bottom: 1rem;
-      font-weight: bold;
-      color: #333;
-    }
+      .modal .result {
+        margin-bottom: 1rem;
+        font-weight: bold;
+        color: #333;
+      }
 
-    .modal .buttons {
-      display: flex;
-      justify-content: space-between;
-    }
+      .modal .buttons {
+        display: flex;
+        justify-content: space-between;
+      }
 
-    .modal button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.95rem;
-    }
+      .modal button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+      }
 
-    .btn-calc {
-      background-color: #007bff;
-      color: white;
-    }
+      .btn-calc {
+        background-color: #007bff;
+        color: white;
+      }
 
-    .btn-cancel {
-      background-color: #aaa;
-      color: white;
-    }
+      .btn-cancel {
+        background-color: #aaa;
+        color: white;
+      }
 
-    @keyframes popIn {
-      from { transform: scale(0.95); opacity: 0 }
-      to { transform: scale(1); opacity: 1 }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🚜 Farm Manager 🌾</h1>
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
 
-    <div class="filters">
-      <input type="text" id="search" placeholder="Search plant name..." />
-      <select id="sort">
-        <option value="">Sort by...</option>
-        <option value="rating">Highest Crop Value Rating</option>
-        <option value="maturing">Shortest Maturing Time</option>
-      </select>
-      <select id="seed-type">
-        <option value="">Filter by Seed Type...</option>
-      </select>
+      @keyframes popIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚜 Farm Manager 🌾</h1>
+      <div class="filters">
+        <input type="text" id="search" placeholder="Search plant name..." />
+        <select id="sort">
+          <option value="">Sort by...</option>
+          <option value="rating">Highest Crop Value Rating</option>
+          <option value="maturing">Shortest Maturing Time</option>
+        </select>
+        <select id="seed-type">
+          <option value="">Filter by Seed Type...</option>
+        </select>
+      </div>
+      <div id="plant-list"></div>
     </div>
+    <div id="modal-container" style="display: none;"></div>
 
-    <div id="plant-list"></div>
-  </div>
+    <script>
+      const API_URL = '/api/crops';
+      let cropData = [];
+      let expandedCropName = null;
 
-  <div id="modal-container" style="display: none;"></div>
+      const secondsToTime = (sec) => {
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        const s = sec % 60;
+        return [h ? `${h}h` : '', m ? `${m}m` : '', s && !h ? `${s}s` : ''].filter(Boolean).join(' ');
+      };
 
-  <script>
-    const API_URL = '/api/crops';
-    let cropData = [];
-    let expandedCropName = null;
-
-    const secondsToTime = (sec) => {
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const s = sec % 60;
-      return [ h ? `${h}h` : '', m ? `${m}m` : '', s && !h ? `${s}s` : '' ].filter(Boolean).join(' ');
-    };
-
-    async function fetchData() {
-      try {
-        const res = await fetch(API_URL);
-        cropData = await res.json();
-        populateSeedTypes();
-        renderList();
-      } catch (err) {
-        console.error("Failed to fetch crop data", err);
-      }
-    }
-
-    function populateSeedTypes() {
-      const seedTypeSelect = document.getElementById("seed-type");
-      const uniqueTypes = [...new Set(cropData.map(c => c.type))].sort();
-      seedTypeSelect.innerHTML = '<option value="">Filter by Seed Type...</option>';
-      uniqueTypes.forEach(type => {
-        const opt = document.createElement("option");
-        opt.value = type;
-        opt.textContent = type;
-        seedTypeSelect.appendChild(opt);
-      });
-    }
-
-    function renderList() {
-      const searchVal = document.getElementById("search").value.toLowerCase();
-      const sortVal = document.getElementById("sort").value;
-      const seedTypeVal = document.getElementById("seed-type").value;
-
-      const container = document.getElementById("plant-list");
-      container.innerHTML = "";
-
-      let filtered = cropData
-        .filter(crop => crop.name.toLowerCase().includes(searchVal))
-        .filter(crop => !seedTypeVal || crop.type === seedTypeVal);
-
-      if (sortVal === "rating") {
-        filtered.sort((a, b) => b.cropValueRating - a.cropValueRating);
-      } else if (sortVal === "maturing") {
-        filtered.sort((a, b) => a.maturingTime - b.maturingTime);
+      async function fetchData() {
+        try {
+          const res = await fetch(API_URL);
+          cropData = await res.json();
+          populateSeedTypes();
+          renderList();
+        } catch (err) {
+          console.error("Failed to fetch crop data", err);
+        }
       }
 
-      filtered.forEach(crop => {
-        const div = document.createElement("div");
-        div.className = "plant";
+      function populateSeedTypes() {
+        const seedTypeSelect = document.getElementById("seed-type");
+        const uniqueTypes = [...new Set(cropData.map(c => c.type))].sort();
+        seedTypeSelect.innerHTML = '<option value="">Filter by Seed Type...</option>';
+        uniqueTypes.forEach(type => {
+          const opt = document.createElement("option");
+          opt.value = type;
+          opt.textContent = type;
+          seedTypeSelect.appendChild(opt);
+        });
+      }
 
-        const rating = Number(crop.cropValueRating).toFixed(2);
-        let color = "gray";
-        if (rating >= 70) color = "green";
-        else if (rating >= 40) color = "orange";
-        else color = "red";
+      function renderList() {
+        const searchVal = document.getElementById("search").value.toLowerCase();
+        const sortVal = document.getElementById("sort").value;
+        const seedTypeVal = document.getElementById("seed-type").value;
 
-        const shortInfo = document.createElement("div");
-        shortInfo.className = "short-info";
-        shortInfo.innerHTML = `
-          <strong>${crop.name}</strong> <span class="rating" style="color: ${color};">(${rating}%)</span><br/>
-          Seed Type: ${crop.type}<br/>
-          Crop Value Rating: ${rating}%<br/>
-          Crop Value per 1K: $${Number(crop.cropValuePer1k).toFixed(2)}<br/>
-          Seed Cost: $${Number(crop.seedCost).toFixed(2)}
-        `;
+        const container = document.getElementById("plant-list");
+        container.innerHTML = "";
 
-        const expand = document.createElement("div");
-        expand.className = "expand";
-        expand.innerHTML = `
-          Kg per Ha: ${crop.kgPerHa}<br/>
-          Yield per Ha: ${crop.yieldPerHa}<br/>
-          Temp Max (°C): ${crop.tempMaxC}<br/>
-          Best pH: ${Number(crop.bestPh).toFixed(2)}<br/>
-          Irrigation: ${Number(crop.irrigation).toFixed(2)}<br/>
-          Maturing Time: ${secondsToTime(Number(crop.maturingTime))}<br/>
-          Ha Traded: ${Number(crop.haTraded).toFixed(2)}<br/>
-          <button class="calc-btn">💰 Calculate Income</button>
-        `;
+        let filtered = cropData
+          .filter(crop => crop.name.toLowerCase().includes(searchVal))
+          .filter(crop => !seedTypeVal || crop.type === seedTypeVal);
 
-        if (crop.name === expandedCropName) {
-          expand.style.display = "block";
+        if (sortVal === "rating") {
+          filtered.sort((a, b) => b.cropValueRating - a.cropValueRating);
+        } else if (sortVal === "maturing") {
+          filtered.sort((a, b) => a.maturingTime - b.maturingTime);
         }
 
-        div.onclick = (e) => {
-          const allPlants = document.querySelectorAll('.plant');
-          allPlants.forEach(p => {
-            const exp = p.querySelector('.expand');
-            if (exp) exp.style.display = 'none';
-          });
+        filtered.forEach(crop => {
+          const div = document.createElement("div");
+          div.className = "plant";
 
-          const isExpanding = expand.style.display !== "block";
-          expand.style.display = isExpanding ? "block" : "none";
-          expandedCropName = isExpanding ? crop.name : null;
+          const rating = Number(crop.cropValueRating).toFixed(2);
+          let color = rating >= 70 ? "green" : rating >= 40 ? "orange" : "red";
+
+          const shortInfo = document.createElement("div");
+          shortInfo.className = "short-info";
+          shortInfo.innerHTML = `
+            <strong>${crop.name}</strong> <span class="rating" style="color: ${color};">(${rating}%)</span><br/>
+            Seed Type: ${crop.type}<br/>
+            Crop Value Rating: ${rating}%<br/>
+            Crop Value per 1K: $${Number(crop.cropValuePer1k).toFixed(2)}<br/>
+            Seed Cost: $${Number(crop.seedCost).toFixed(2)}
+          `;
+
+          const expand = document.createElement("div");
+          expand.className = "expand";
+          expand.innerHTML = `
+            Kg per Ha: ${crop.kgPerHa}<br/>
+            Yield per Ha: ${crop.yieldPerHa}<br/>
+            Temp Max (°C): ${crop.tempMaxC}<br/>
+            Best pH: ${Number(crop.bestPh).toFixed(2)}<br/>
+            Irrigation: ${Number(crop.irrigation).toFixed(2)}<br/>
+            Maturing Time: ${secondsToTime(Number(crop.maturingTime))}<br/>
+            Ha Traded: ${Number(crop.haTraded).toFixed(2)}<br/>
+            <button class="calc-btn">💰 Calculate Income</button>
+          `;
+
+          if (crop.name === expandedCropName) {
+            expand.style.display = "block";
+          }
+
+          div.onclick = (e) => {
+            const allPlants = document.querySelectorAll('.plant');
+            allPlants.forEach(p => {
+              const exp = p.querySelector('.expand');
+              if (exp) exp.style.display = 'none';
+            });
+
+            const isExpanding = expand.style.display !== "block";
+            expand.style.display = isExpanding ? "block" : "none";
+            expandedCropName = isExpanding ? crop.name : null;
+          };
+
+          div.appendChild(shortInfo);
+          div.appendChild(expand);
+          container.appendChild(div);
+
+          setTimeout(() => {
+            const btn = expand.querySelector(".calc-btn");
+            if (btn) {
+              btn.onclick = (event) => {
+                event.stopPropagation();
+                openModal(crop);
+              };
+            }
+          }, 0);
+        });
+      }
+
+      function openModal(crop) {
+        const modal = document.createElement("div");
+        modal.className = "modal-backdrop";
+        modal.innerHTML = `
+          <div class="modal">
+            <h2>💰 Sell ${crop.name}</h2>
+            <input type="number" placeholder="Amount (kg)" id="kg-input" min="1" />
+            <div style="text-align: center; margin: 0.5rem 0;">OR</div>
+            <input type="number" placeholder="Area (ha)" id="ha-input" min="0.01" step="0.01" />
+            <small id="ha-warning" style="color: #cc8800; display: none; margin-bottom: 1rem;">
+              ⚠️ 100% crop suitability, fertilizer and irrigation is required ⚠️
+            </small>
+            <div class="result" id="income-result"></div>
+            <div class="buttons">
+              <button class="btn-calc">Calculate</button>
+              <button class="btn-cancel">Cancel</button>
+            </div>
+          </div>
+        `;
+
+        const container = document.getElementById("modal-container");
+        container.innerHTML = "";
+        container.appendChild(modal);
+        container.style.display = "block";
+
+        const kgInputField = modal.querySelector("#kg-input");
+        const haInputField = modal.querySelector("#ha-input");
+        const haWarning = modal.querySelector("#ha-warning");
+
+        kgInputField.addEventListener("input", () => {
+          if (kgInputField.value.trim()) {
+            haInputField.disabled = true;
+          } else {
+            haInputField.disabled = false;
+          }
+        });
+
+        haInputField.addEventListener("input", () => {
+          if (haInputField.value.trim()) {
+            kgInputField.disabled = true;
+          } else {
+            kgInputField.disabled = false;
+          }
+        });
+
+        haInputField.addEventListener("click", () => {
+          haWarning.style.display = "block";
+        });
+
+        kgInputField.addEventListener("click", () => {
+          haWarning.style.display = "none";
+        });
+
+        modal.querySelector(".btn-cancel").onclick = () => {
+          container.style.display = "none";
+          container.innerHTML = "";
         };
 
-        div.appendChild(shortInfo);
-        div.appendChild(expand);
-        container.appendChild(div);
+        modal.querySelector(".btn-calc").onclick = () => {
+          const kgInput = kgInputField.value.trim();
+          const haInput = haInputField.value.trim();
+          let amount = parseFloat(kgInput);
+          const ha = parseFloat(haInput);
 
-        setTimeout(() => {
-          const btn = expand.querySelector(".calc-btn");
-          if (btn) {
-            btn.onclick = (event) => {
-              event.stopPropagation();
-              openModal(crop);
-            };
+          if ((!amount || isNaN(amount)) && ha && !isNaN(ha)) {
+            amount = ha * 2114;
           }
-        }, 0);
-      });
-    }
 
-    function openModal(crop) {
-      const modal = document.createElement("div");
-      modal.className = "modal-backdrop";
-      modal.innerHTML = `
-        <div class="modal">
-          <h2>💰 Sell ${crop.name}</h2>
-          <input type="number" placeholder="Amount (kg)" id="kg-input" min="1" />
-          <div class="result" id="income-result"></div>
-          <div class="buttons">
-            <button class="btn-calc">Calculate</button>
-            <button class="btn-cancel">Cancel</button>
-          </div>
-        </div>
-      `;
+          if (!amount || isNaN(amount) || amount <= 0) {
+            modal.querySelector("#income-result").textContent = "Please enter a valid amount or area.";
+            return;
+          }
 
-      const container = document.getElementById("modal-container");
-      container.innerHTML = "";
-      container.appendChild(modal);
-      container.style.display = "block";
+          const gross = amount * (crop.cropValuePer1k / 1000);
+          const feePercent = 15;
+          const fee = gross * (feePercent / 100);
+          const net = gross - fee;
 
-      modal.querySelector(".btn-cancel").onclick = () => {
-        container.style.display = "none";
-        container.innerHTML = "";
-      };
+          modal.querySelector("#income-result").innerHTML = `
+            Gross: $${gross.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br/>
+            Brokerage Fee (${feePercent}%): -$${fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br/>
+            <strong>Net Income: $${net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+          `;
+        };
+      }
 
-      modal.querySelector(".btn-calc").onclick = () => {
-        const amount = parseFloat(modal.querySelector("#kg-input").value);
-        if (isNaN(amount) || amount <= 0) {
-          modal.querySelector("#income-result").textContent = "❌ Invalid amount.";
-          return;
-        }
+      document.getElementById("search").addEventListener("input", renderList);
+      document.getElementById("sort").addEventListener("change", renderList);
+      document.getElementById("seed-type").addEventListener("change", renderList);
 
-        const gross = amount * (crop.cropValuePer1k / 1000);
-        const feePercent = 15;
-        const fee = gross * (feePercent / 100);
-        const net = gross - fee;
-
-        modal.querySelector("#income-result").innerHTML = `
-          Gross: $${gross.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br/>
-          Brokerage Fee (${feePercent}%): -$${fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br/>
-          <strong>Net Income: $${net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-        `;
-      };
-    }
-
-    document.getElementById("search").addEventListener("input", renderList);
-    document.getElementById("sort").addEventListener("change", renderList);
-    document.getElementById("seed-type").addEventListener("change", renderList);
-
-    fetchData();
-    setInterval(fetchData, 5000);
-  </script>
-</body>
+      fetchData();
+      setInterval(fetchData, 8000);
+    </script>
+  </body>
 </html>
