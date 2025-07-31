@@ -328,13 +328,14 @@
         }
 
         const gross = amount * (crop.cropValuePer1k / 1000);
-        const brokerage = gross * 0.15;
-        const net = gross - brokerage;
+        const feePercent = 15;
+        const fee = gross * (feePercent / 100);
+        const net = gross - fee;
 
         modal.querySelector("#income-result").innerHTML = `
-          Gross Income: $${gross.toFixed(2)}<br/>
-          Brokerage (15%): -$${brokerage.toFixed(2)}<br/>
-          <strong>Net Income: $${net.toFixed(2)}</strong>
+          Gross: $${gross.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br/>
+          Brokerage Fee (${feePercent}%): -$${fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}<br/>
+          <strong>Net Income: $${net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
         `;
       };
     }
