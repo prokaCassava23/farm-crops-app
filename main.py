@@ -75,6 +75,10 @@ def serve_frontend():
     with open("index.html", "r", encoding="utf-8") as f: 
         return HTMLResponse(f.read())
 
+@app.head("/")
+def health_check():
+    return HTMLResponse(status_code=200)
+
 threading.Thread(target=background_updater, daemon=True).start()
 
 if __name__ == "__main__":
