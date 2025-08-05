@@ -22,6 +22,9 @@
       h1 {
         font-size: 1.8rem;
         margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
 
       .filters {
@@ -105,7 +108,6 @@
         padding: 1.5rem;
         width: 300px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        animation: popIn 0.2s ease-out;
       }
 
       .modal h2 {
@@ -118,10 +120,9 @@
         margin: 0 auto 1rem auto;
         padding: 0.5rem;
         font-size: 1rem;
-        margin-bottom: 1rem;
         border: 1px solid #ccc;
         border-radius: 4px;
-        display: block;  
+        display: block;
       }
 
       .modal .result {
@@ -159,6 +160,119 @@
         margin: 0;
       }
 
+      body.dark {
+        background: #1c1c1e;
+        color: #e6e6e6;
+      }
+
+      body.dark input,
+      body.dark select {
+        background: #2c2c2e;
+        border: 1px solid #444;
+        color: #f1f1f1;
+      }
+
+      body.dark .plant {
+        background: #2c2c2e;
+        border-color: #3a3a3c;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      }
+
+      body.dark .short-info {
+        color: #cccccc;
+      }
+
+      body.dark .expand {
+        color: #aaaaaa;
+      }
+
+      body.dark .modal {
+        background: #2c2c2e;
+        color: #f1f1f1;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
+      }
+
+      body.dark .modal input {
+        background: #3a3a3c;
+        border-color: #555;
+        color: #ffffff;
+      }
+
+      body.dark .modal .result {
+        color: #d1d1d1;
+      }
+
+      body.dark .btn-calc {
+        background-color: #0a84ff;
+        color: white;
+      }
+
+      body.dark .btn-calc:hover {
+        background-color: #006fe0;
+      }
+
+      body.dark .btn-cancel {
+        background-color: #5e5e5e;
+        color: white;
+      }
+
+      body.dark .calc-btn {
+        background-color: #32d74b;
+        color: #000000;
+      }
+
+      body.dark .calc-btn:hover {
+        background-color: #28b13e;
+      }
+
+      .silo-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 1px solid #888;
+        cursor: pointer;
+        background: #fff;
+        color: #000;
+      }
+
+      .silo-btn.selected {
+        background: #ccc;
+      }
+
+      body.dark .silo-btn {
+        background: #2c2c2e;
+        color: #f1f1f1;
+        border-color: #444;
+      }
+
+      body.dark .silo-btn.selected {
+        background: #444;
+      }
+
+      #custom-silo-cancel {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 1px solid #888;
+        cursor: pointer;
+        background: #fff;
+        color: #000;
+      }
+
+      #custom-silo-submit {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: 1px solid #888;
+        cursor: pointer;
+        background: #fff;
+        color: #000;
+      }
+
+      body.dark #custom-silo-cancel,
+      body.dark #custom-silo-submit {
+        background: #2c2c2e;
+        color: #f1f1f1;
+        border-color: #444;
+      }
+
       @keyframes popIn {
         from {
           transform: scale(0.95);
@@ -173,26 +287,54 @@
   </head>
   <body>
     <div class="container">
-      <h1>🚜 Farm Manager 🌾</h1>
+      <h1>
+        🚜 Farm Manager
+        <button
+          id="dark-toggle"
+          style="margin-left: 1rem; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; background: none; border: none; outline: none;"
+        >
+          🌙
+        </button>
+      </h1>
       <div class="filters">
         <input type="text" id="search" placeholder="Search plant name..." />
+
         <select id="sort">
-          <option value="">Sort by...</option>
+          <option value="">Sort By</option>
           <option value="rating">Highest Crop Value Rating</option>
           <option value="maturing">Shortest Maturing Time</option>
+          <option value="silo">Profit by Silo</option>
         </select>
+
         <select id="seed-type">
-          <option value="">Filter by Seed Type...</option>
+          <option value="">Filter Seed Type</option>
         </select>
+
+        <div
+          id="silo-options"
+          style="display:none; gap: 0.5rem; flex-wrap: wrap;"
+        ></div>
+
+        <div id="custom-silo-box" style="display: none; margin-top: 1rem;">
+          <input
+            type="number"
+            id="custom-silo-input"
+            placeholder="Enter custom silo capacity"
+            min="1"
+          />
+          <button id="custom-silo-submit">Set</button>
+          <button id="custom-silo-cancel">Cancel</button>
+        </div>
       </div>
       <div id="plant-list"></div>
+      <div id="modal-container" style="display:none;"></div>
     </div>
-    <div id="modal-container" style="display: none;"></div>
-
     <script>
       const API_URL = '/api/crops';
       let cropData = [];
       let expandedCropName = null;
+      let selectedSiloCapacity = null;
+      let customSiloValue = null;
 
       const secondsToTime = (sec) => {
         const h = Math.floor(sec / 3600);
@@ -215,7 +357,7 @@
       function populateSeedTypes() {
         const seedTypeSelect = document.getElementById("seed-type");
         const uniqueTypes = [...new Set(cropData.map(c => c.type))].sort();
-        seedTypeSelect.innerHTML = '<option value="">Filter by Seed Type...</option>';
+        seedTypeSelect.innerHTML = '<option value="">Filter Seed Type</option>';
         uniqueTypes.forEach(type => {
           const opt = document.createElement("option");
           opt.value = type;
@@ -230,6 +372,8 @@
         const seedTypeVal = document.getElementById("seed-type").value;
 
         const container = document.getElementById("plant-list");
+        const siloContainer = document.getElementById("silo-options");
+
         container.innerHTML = "";
 
         let filtered = cropData
@@ -237,9 +381,25 @@
           .filter(crop => !seedTypeVal || crop.type === seedTypeVal);
 
         if (sortVal === "rating") {
+          siloContainer.style.display = "none";
           filtered.sort((a, b) => b.cropValueRating - a.cropValueRating);
         } else if (sortVal === "maturing") {
+          siloContainer.style.display = "none";
           filtered.sort((a, b) => a.maturingTime - b.maturingTime);
+        } else if (sortVal === "silo") {
+          siloContainer.style.display = "flex";
+          renderSiloButtons();
+
+          if (selectedSiloCapacity) {
+            filtered = filtered
+              .map(crop => {
+                const revenue = (selectedSiloCapacity * crop.cropValuePer1k) / 1000;
+                return { ...crop, revenue };
+              })
+              .sort((a, b) => b.revenue - a.revenue);
+          }
+        } else {
+          siloContainer.style.display = "none";
         }
 
         filtered.forEach(crop => {
@@ -251,13 +411,26 @@
 
           const shortInfo = document.createElement("div");
           shortInfo.className = "short-info";
-          shortInfo.innerHTML = `
-            <strong>${crop.name}</strong> <span class="rating" style="color: ${color};">(${rating}%)</span><br/>
-            Seed Type: ${crop.type}<br/>
-            Crop Value Rating: ${rating}%<br/>
-            Crop Value per 1K: $${Number(crop.cropValuePer1k).toFixed(2)}<br/>
-            Seed Cost: $${Number(crop.seedCost).toFixed(2)}
-          `;
+
+          if (sortVal === "silo" && selectedSiloCapacity) {
+            shortInfo.innerHTML = `
+              <strong>${crop.name}</strong> <span class="rating" style="color: ${color};">(${rating}%)</span><br/>
+              Revenue: $${crop.revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}<br/>
+              Silo: ${selectedSiloCapacity.toLocaleString()} kg<br/>
+              Seed Type: ${crop.type}<br/>
+              Crop Value Rating: ${rating}%<br/>
+              Crop Value per 1K: $${Number(crop.cropValuePer1k).toFixed(2)}<br/>
+              Seed Cost: $${Number(crop.seedCost).toFixed(2)}
+            `;
+          } else {
+            shortInfo.innerHTML = `
+              <strong>${crop.name}</strong> <span class="rating" style="color: ${color};">(${rating}%)</span><br/>
+              Seed Type: ${crop.type}<br/>
+              Crop Value Rating: ${rating}%<br/>
+              Crop Value per 1K: $${Number(crop.cropValuePer1k).toFixed(2)}<br/>
+              Seed Cost: $${Number(crop.seedCost).toFixed(2)}
+            `;
+          }
 
           const expand = document.createElement("div");
           expand.className = "expand";
@@ -294,15 +467,72 @@
 
           setTimeout(() => {
             const btn = expand.querySelector(".calc-btn");
-            if (btn) {
+            if (btn && sortVal !== "silo") {
               btn.onclick = (event) => {
                 event.stopPropagation();
                 openModal(crop);
               };
+            } else if (btn && sortVal === "silo") {
+              btn.remove();
             }
           }, 0);
         });
       }
+
+      function renderSiloButtons() {
+        const options = [100000, 200000, "CUSTOM"];
+        const container = document.getElementById("silo-options");
+        container.innerHTML = '';
+
+        options.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.textContent = typeof opt === "number" ? `${opt / 1000}K` : `CUSTOM AMOUNT`;
+          btn.classList.add("silo-btn");
+
+          if (selectedSiloCapacity === opt) {
+            btn.classList.add("selected");
+            btn.disabled = true;
+          }
+
+          btn.onclick = () => {
+            if (opt === "CUSTOM") {
+              document.getElementById("custom-silo-box").style.display = "block";
+              return;
+            } else {
+              selectedSiloCapacity = opt;
+              customSiloValue = null;
+            }
+
+            document.querySelectorAll(".silo-btn").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            btn.disabled = true;
+
+            renderList();
+          };
+
+          container.appendChild(btn);
+        });
+      }
+
+      document.getElementById("custom-silo-submit").onclick = () => {
+        const input = document.getElementById("custom-silo-input").value;
+        if (input && !isNaN(input) && input > 0) {
+          selectedSiloCapacity = parseFloat(input);
+          customSiloValue = selectedSiloCapacity;
+          document.getElementById("custom-silo-box").style.display = "none";
+          document.getElementById("custom-silo-input").value = "";
+
+          document.querySelectorAll(".silo-btn").forEach(b => b.classList.remove("selected"));
+          renderList();
+        } else {
+          alert("Please enter a valid number greater than 0.");
+        }
+      };
+
+      document.getElementById("custom-silo-cancel").onclick = () => {
+        document.getElementById("custom-silo-box").style.display = "none";
+        document.getElementById("custom-silo-input").value = "";
+      };
 
       function openModal(crop) {
         const modal = document.createElement("div");
@@ -314,7 +544,8 @@
             <div style="text-align: center; margin: 0.5rem 0;">OR</div>
             <input type="number" placeholder="Area (ha)" id="ha-input" min="0.01" step="0.01" />
             <small id="ha-warning" style="color: #cc8800; display: none; margin-bottom: 1rem;">
-            100% crop suitability needed           </small>
+              100% crop suitability, fertilizer and irrigation is required
+            </small>
             <div class="result" id="income-result"></div>
             <div class="buttons">
               <button class="btn-calc">Calculate</button>
@@ -333,19 +564,11 @@
         const haWarning = modal.querySelector("#ha-warning");
 
         kgInputField.addEventListener("input", () => {
-          if (kgInputField.value.trim()) {
-            haInputField.disabled = true;
-          } else {
-            haInputField.disabled = false;
-          }
+          haInputField.disabled = !!kgInputField.value.trim();
         });
 
         haInputField.addEventListener("input", () => {
-          if (haInputField.value.trim()) {
-            kgInputField.disabled = true;
-          } else {
-            kgInputField.disabled = false;
-          }
+          kgInputField.disabled = !!haInputField.value.trim();
         });
 
         haInputField.addEventListener("click", () => {
@@ -390,11 +613,22 @@
       }
 
       document.getElementById("search").addEventListener("input", renderList);
-      document.getElementById("sort").addEventListener("change", renderList);
+      document.getElementById("sort").addEventListener("change", () => {
+        const sortVal = document.getElementById("sort").value;
+
+        if (sortVal === "silo" && !selectedSiloCapacity) {
+          selectedSiloCapacity = 100000;
+          customSiloValue = null;
+        }
+
+        renderList();
+      });
+
       document.getElementById("seed-type").addEventListener("change", renderList);
 
       fetchData();
       setInterval(fetchData, 8000);
     </script>
+    <script src="/static/back.js"></script>
   </body>
 </html>
