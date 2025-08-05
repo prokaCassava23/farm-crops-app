@@ -393,7 +393,8 @@
           if (selectedSiloCapacity) {
             filtered = filtered
               .map(crop => {
-                const revenue = (selectedSiloCapacity * crop.cropValuePer1k) / 1000;
+                const grossRevenue = (selectedSiloCapacity * crop.cropValuePer1k) / 1000;
+                const revenue = grossRevenue * 0.85;
                 return { ...crop, revenue };
               })
               .sort((a, b) => b.revenue - a.revenue);
@@ -415,7 +416,7 @@
           if (sortVal === "silo" && selectedSiloCapacity) {
             shortInfo.innerHTML = `
               <strong>${crop.name}</strong> <span class="rating" style="color: ${color};">(${rating}%)</span><br/>
-              Revenue: $${crop.revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}<br/>
+              Revenue: $${crop.revenue.toLocaleString(undefined, {minimumFractionDigits: 2})} <small>(-15%)</small><br/>
               Silo: ${selectedSiloCapacity.toLocaleString()} kg<br/>
               Seed Type: ${crop.type}<br/>
               Crop Value Rating: ${rating}%<br/>
