@@ -433,3 +433,60 @@ body.dark #dark-toggle:hover {
   margin: 0;
   display: inline-block;
 }
+
+.header-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.custom-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;      
+  border-radius: 6px;                
+  border: 1px solid #888;            
+  background: #fff;                  
+  color: #000;                       
+  font-size: 0.9rem;
+  width: 130px;
+}
+
+.custom-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.custom-btn:hover {
+  background: #f0f0f0;
+}
+
+body.dark .custom-btn {
+  background: #2c2c2e;
+  color: #f1f1f1;
+  border-color: #444;
+}
+
+body.dark .custom-btn:hover {
+  background: #3a3a3c;
+}
+
+.custom-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.sort-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.sort-label {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
