@@ -1,50 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Farm Manager Crop Viewer</title>
     <link rel="stylesheet" href="/static/style.css">
-  </head>
-
-  <body>
+    <link rel="icon" type="image/png" href="/static/images/tractor.png">
+</head>
+<body>
     <div class="container">
-      <h1>
-        🚜 Farm Manager
-        <button id="dark-toggle" title="Settings">
-          ⚙️
-        </button>
-      </h1>
-      <p id="last-updated">Last refreshed: just now</p>
-
-      <div class="filters">
-        <input type="text" id="search" placeholder="Search plant name..." />
-        <select id="sort">
-          <option value="">Sort By</option>
-          <option value="rating">Highest Crop Value Rating</option>
-          <option value="maturing">Shortest Maturing Time</option>
-          <option value="silo">Profit by Silo</option>
-        </select>
-
-        <div id="silo-options"></div>
-
-        <div id="custom-silo-box">
-          <input
-            type="number"
-            id="custom-silo-input"
-            placeholder="Enter custom silo capacity"
-            min="1"
-          />
-          <button id="custom-silo-submit">Set</button>
-          <button id="custom-silo-cancel">Cancel</button>
+        <div class="header-buttons">
+            <button class="custom-btn" id="cropsBtn">
+                <img src="/static/images/crop.png" alt="Crops" />
+                <span>Crops</span>
+            </button>
+            <button class="custom-btn" id="livestockBtn">
+                <img src="/static/images/horse.png" alt="Livestock" />
+                <span>Livestock</span>
+            </button>
         </div>
-      </div>
 
-      <div id="plant-list"></div>
-      <div id="modal-container" style="display:none;"></div>
+        <h1>
+            🚜 Farm Manager
+            <button id="dark-toggle" title="Settings">⚙️</button>
+        </h1>
+
+        <p id="last-updated">Last refreshed: just now</p>
+
+        <div id="cropsUI">
+            <div class="filters">
+                <input type="text" id="search" placeholder="Search plant name..." />
+
+                <div class="sort-container">
+                    <span class="sort-label">Sort By</span>
+                    <select id="sort">
+                        <option value="rating">Highest Crop Value Rating</option>
+                        <option value="maturing">Shortest Maturing Time</option>
+                        <option value="silo">Profit by Silo</option>
+                    </select>
+                </div>
+
+                <div id="silo-options"></div>
+                <div id="custom-silo-box">
+                    <input type="number" id="custom-silo-input" placeholder="Enter custom silo capacity" min="1" />
+                    <button id="custom-silo-submit">Set</button>
+                    <button id="custom-silo-cancel">Cancel</button>
+                </div>
+            </div>
+            <div id="plant-list"></div>
+        </div>
+
+        <div id="modal-container" style="display:none;"></div>
+
+        <div id="livestockSection" style="display:none;">
+            <div style="text-align:center; padding:50px;">
+                <h2>🐄 Livestock</h2>
+                <p>Coming Soon...</p>
+            </div>
+        </div>
     </div>
 
     <script src="/static/back.js"></script>
-    <script src="/static/sesso.js" defer></script>
-  </body>
+    <script src="/static/sesso.js"></script>
+    <script src="/static/switch.js"></script>
+</body>
 </html>
