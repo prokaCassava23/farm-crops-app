@@ -58,7 +58,8 @@ def fetch_crop_data():
                     "bestPh": seed.get("bestPh"),
                     "irrigation": seed.get("irrigation"),
                     "maturingTime": crop.get("maturingTime"),
-                    "haTraded": crop.get("haTraded")
+                    "haTraded": crop.get("haTraded"),
+                    "harvestCycles": crop.get("harvestCycles")
                 })
             cached_data = enriched
     except Exception as e:
