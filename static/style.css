@@ -366,11 +366,7 @@ body.dark #custom-silo-submit {
 }
 
 .dark-toggle::after {
-  content: "🌙";
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  content: "";
   width: 22px;
   height: 22px;
   background: white;
@@ -378,7 +374,7 @@ body.dark #custom-silo-submit {
   position: absolute;
   top: 2px;
   left: 2px;
-  transition: transform 0.3s ease, content 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 #dark-switch:checked + .dark-toggle {
@@ -387,7 +383,6 @@ body.dark #custom-silo-submit {
 
 #dark-switch:checked + .dark-toggle::after {
   transform: translateX(24px);
-  content: "☀️";
 }
 
 body.dark .dark-toggle {
@@ -415,6 +410,54 @@ body.dark #dark-toggle {
 
 body.dark #dark-toggle:hover {
   background: #3a3a3c;
+}
+
+.harvest-toggle-container {
+  display: flex;
+  align-items: center;
+}
+
+#harvest-switch {
+  display: none;
+}
+
+.harvest-toggle {
+  width: 50px;
+  height: 26px;
+  background: #ccc;
+  border-radius: 50px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.harvest-toggle::after {
+  content: "";
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+}
+
+
+#harvest-switch:checked + .harvest-toggle {
+  background: #4caf50;
+}
+
+#harvest-switch:checked + .harvest-toggle::after {
+  transform: translateX(24px);
+}
+
+body.dark .harvest-toggle {
+  background: #555;
+}
+
+body.dark #harvest-switch:checked + .harvest-toggle {
+  background: #586d92;
 }
 
 .setting-section {
@@ -489,4 +532,54 @@ body.dark .custom-btn:hover {
 .sort-label {
     font-weight: bold;
     margin-bottom: 4px;
+}
+
+.tooltip {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 6px;
+  background: #ccc;
+  color: #000;
+  border-radius: 50%;
+  width: 13px;
+  height: 13px;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  position: relative;
+  font-weight: bold;
+  line-height: 13px;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #222222;
+  color: #fff;
+  text-align: left;
+  padding: 6px;
+  border-radius: 4px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
 }
