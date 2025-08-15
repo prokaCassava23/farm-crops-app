@@ -583,3 +583,8 @@ body.dark .custom-btn:hover {
   visibility: visible;
   opacity: 1;
 }
+
+.chart-container canvas {
+  width: 100% !important; 
+  height: 200px !important;
+}
