@@ -74,6 +74,32 @@ def background_updater():
 def get_crops():
     return cached_data
 
+@app.get("/api/price-chart/{crop_id}")
+def get_price_chart(crop_id: int):
+    try:
+        with requests.Session() as s:
+            s.post(login_url, data={"email": EMAIL, "password": PASSWORD})        
+            form_data = {
+                "type": "crop",
+                "cropId": crop_id,
+                "BT": "your_BT_value_here",
+                "BC03B460556A6B8D": "your_BC_value_here"
+            }
+            
+            resp = s.post(
+                "https://farmmanagergame.com/api/price-chart.php",
+                data=form_data
+            )
+            resp.raise_for_status()
+            data = resp.json()
+
+            if not isinstance(data, list):
+                return []
+            return data
+    except Exception as e:
+        print("Error fetching price chart:", e)
+        return []
+
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
     with open("index.html", "r", encoding="utf-8") as f: 
